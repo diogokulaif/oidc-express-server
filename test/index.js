@@ -1,4 +1,6 @@
 require('dotenv').config();
+const server = require("../index");
+const logger = require("../src/utils/logger");
 
 // TODO Validate all env variables
 const LISTEN_PORT = process.env.WEBSERVER_LISTEN_PORT || 3000
@@ -14,9 +16,9 @@ const OAUTH2_CLIENT_SECRET = process.env.WEBSERVER_SECURITY_OAUTH2_CLIENT_SECRET
 const PROTECTED_PATHS = process.env.WEBSERVER_SECURITY_PROTECTED_PATHS;
 
 let options = {
-    listenPort: LISTEN_PORT,
     appRootPath: APP_ROOT_PATH,
     appContextPath: APP_CONTEXT_PATH,
+    protectedPath: PROTECTED_PATHS,
     oidc:{
         enabled: (SECURITY_ENABLED === "true"),
         discoveryUrl: OIDC_DISCOVERY_URL,
@@ -24,12 +26,18 @@ let options = {
         client_secret: OAUTH2_CLIENT_SECRET,
         redirect_uris: [ OAUTH2_REDIRECT_URI ],
         post_logout_redirect_uris: [ OAUTH2_POST_LOGOUT_REDIRECT_URI ],
-        userinfo_endpoint: criiptoIssuer.userinfo_endpoint,
-        introspection_endpoint: criiptoIssuer.introspection_endpoint,
-        logout_endpoint: criiptoIssuer.end_session_endpoint,
-        token_endpoint: criiptoIssuer.token_endpoint
     },
     proxy:{
-
+        "/api":{
+            target: "${PROXY_API_HOST}",
+            options:{},
+            authorization: true //enables header bearer token
+        }
     }
 }
+
+server(options, (app)=>{
+    app.listen(LISTEN_PORT, () => {
+        logger.info(`Server is running on port ${LISTEN_PORT}`);
+    });
+});

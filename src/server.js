@@ -19,13 +19,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-module.exports = (options)=>{
+module.exports = (options, next)=>{
 
     if ( options.oidc.enabled ){
     
         Issuer.discover( options.oidc.discoveryUrl ).then(async (criiptoIssuer) => {
             
-            var client = new criiptoIssuer.Client(options);
+            options.oidc.userinfo_endpoint = criiptoIssuer.userinfo_endpoint,
+            options.oidc.introspection_endpoint = criiptoIssuer.introspection_endpoint,
+            options.oidc.logout_endpoint = criiptoIssuer.end_session_endpoint,
+            options.oidc.token_endpoint = criiptoIssuer.token_endpoint
+
+            var client = new criiptoIssuer.Client(options.oidc);
     
             // TODO CHANGE TO REDIS SESSION
             app.use(expressSesssion({
@@ -60,7 +65,7 @@ module.exports = (options)=>{
             });
     
             // TODO IMPLEMENT MULTIPLE PROTECTED PATHS
-            app.use(PROTECTED_PATHS, async ( req, res, next )=>{
+            app.use(options.protectedPath, async ( req, res, next )=>{
                 if ( !req.isAuthenticated() ){
                     if ( req.headers.accept && req.headers.accept.indexOf('json') > -1 ){
                         res.status(401).send({active: false});
@@ -98,21 +103,20 @@ module.exports = (options)=>{
                 }
             });*/
     
-            proxyMiddleware.loadProxies(app, { securityEnabled: options.oidc.enabled });
-    
-            app.listen(options.listenPort, () => {
+            /*app.listen(options.listenPort, () => {
                 logger.info(`Server is running on port ${options.listenPort}`);
-            });
+            });*/
     
+            if ( options.proxy ){
+                proxyMiddleware.loadProxies(app, options.proxy );
+            }
+
+            next(app);
+
         }).catch((error)=>{
             logger.error( error );
-        });
-    
+        })
     }else{
-        // Startup
-        app.listen(options.listenPort, () => {
-            logger.info(`Server is running on port ${options.listenPort}`);
-        });
+        next(app);
     }
-
 }
