@@ -1,6 +1,6 @@
 {
   "name": "@finansystech/oidc-express-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Express Server integrated with OIDC Authentication and Authorization with proxy server",
   "main": "index.js",
   "scripts": {
