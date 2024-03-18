@@ -14,6 +14,7 @@ const OAUTH2_POST_LOGOUT_REDIRECT_URI = process.env.WEBSERVER_SECURITY_OAUTH2_PO
 const OAUTH2_CLIENT_ID = process.env.WEBSERVER_SECURITY_OAUTH2_CLIENT_ID;
 const OAUTH2_CLIENT_SECRET = process.env.WEBSERVER_SECURITY_OAUTH2_CLIENT_SECRET;
 const PROTECTED_PATHS = process.env.WEBSERVER_SECURITY_PROTECTED_PATHS;
+const PROXY_API_HOST = process.env.PROXY_API_HOST;
 
 let options = {
     appRootPath: APP_ROOT_PATH,
@@ -29,7 +30,7 @@ let options = {
     },
     proxy:{
         "/api":{
-            target: "${PROXY_API_HOST}",
+            target: PROXY_API_HOST,
             options:{},
             authorization: true //enables header bearer token
         }

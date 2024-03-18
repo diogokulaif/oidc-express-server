@@ -19,6 +19,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+class MyStrategy extends Strategy{
+    constructor(){
+        super();
+    }
+}
+
 module.exports = (options, next)=>{
 
     if ( options.oidc.enabled ){

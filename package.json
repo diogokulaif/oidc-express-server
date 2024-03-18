@@ -1,5 +1,5 @@
 {
-  "name": "@fst/oidc-express-server",
+  "name": "@finansystech/oidc-express-server",
   "version": "1.0.0",
   "description": "Express Server integrated with OIDC Authentication and Authorization with proxy server",
   "main": "index.js",
